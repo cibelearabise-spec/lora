@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lora</title>
+<style>
+:root{
+  --bg1:#0a1420; --bg2:#132434; --card:#16283a; --card2:#1c3245;
+  --accent:#f2c86b; --accent2:#e8a94f; --text:#eef3f7; --sub:#8fa3b3;
+  --line:rgba(255,255,255,.08);
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{
+  margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  background:radial-gradient(120% 100% at 50% 0%,var(--bg2),var(--bg1) 70%);
+  color:var(--text); display:flex; justify-content:center;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+/* ===================================================================
+   IMAGEM DE FUNDO (ceu.jpg)
+   Cole aqui a imagem convertida em base64 (data URI), assim:
+   --bg-image: url("data:image/jpeg;base64,/9j/4AAQSkZJRg....");
+   E mude --bg-overlay para .7 (deixa a foto visível mas o texto legível).
+   Se deixar "none", o fundo gradiente escuro (padrão) continua sendo usado.
+   =================================================================== */
+:root{
+  --bg-image: none;
+  --bg-overlay: 0;
+}
+.phone{
+  width:100%; max-width:420px; min-height:100vh; padding:18px 18px 90px; position:relative;
+  background-image: var(--bg-image);
+  background-size: cover;
+  background-position: center;
+}
+/* Camada escura sobre a imagem de fundo, para manter o texto legível.
+   Só aparece quando --bg-image estiver definida. */
+.phone::before{
+  content:"";
+  position:absolute; inset:0;
+  background:linear-gradient(180deg, rgba(10,20,32,.55), rgba(10,20,32,.92));
+  opacity: var(--bg-overlay, 0);
+  pointer-events:none; z-index:0;
+}
+.phone > *{ position:relative; z-index:1; }
+.topbar{display:flex; align-items:center; justify-content:space-between; padding:6px 4px 20px;}
+.icon-btn{background:none; border:none; color:var(--text); width:38px; height:38px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center; cursor:pointer; transition:background .15s;}
+.icon-btn:active{background:var(--line);}
+.logo{font-weight:700; letter-spacing:.14em; font-size:15px; color:var(--text); display:flex; align-items:center; gap:8px;}
+.stats{display:flex; justify-content:space-between; margin-bottom:16px;}
+.stat{flex:1; text-align:center; padding:10px 4px; border-radius:14px; cursor:pointer; transition:background .15s, transform .1s;}
+.stat:active{transform:scale(.96);}
+.stat.active{background:var(--card);}
+.stat .val{font-size:19px; font-weight:600;}
+.stat .lbl{font-size:11px; color:var(--sub); margin-top:2px;}
+.stat .ic{font-size:15px; opacity:.85;}
+.pill{display:inline-flex; align-items:center; gap:8px; background:var(--card); border:1px solid var(--line);
+  padding:9px 14px; border-radius:20px; font-size:13px; color:var(--text); cursor:pointer; margin-bottom:14px;}
+.pill:active{background:var(--card2);}
+.notif{background:var(--card); border-radius:18px; padding:16px; margin-bottom:18px; border:1px solid var(--line);
+  transition:opacity .25s, transform .25s;}
+.notif.hide{opacity:0; transform:translateY(-8px) scale(.97); pointer-events:none; height:0; padding:0; margin:0; overflow:hidden; border:none;}
+.notif-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;}
+.notif-title{display:flex; align-items:center; gap:8px; font-size:14px; font-weight:600;}
+.dot{width:8px; height:8px; border-radius:50%; background:var(--accent);}
+.close-x{background:none; border:none; color:var(--sub); font-size:16px; cursor:pointer;}
+.notif-meta{display:flex; gap:16px; font-size:12.5px; color:var(--sub); margin-bottom:14px;}
+.notif-actions{display:flex; gap:10px;}
+.btn{flex:1; padding:11px; border-radius:12px; border:none; font-size:13.5px; font-weight:600; cursor:pointer; transition:filter .15s, transform .1s;}
+.btn:active{transform:scale(.97);}
+.btn-confirm{background:var(--text); color:#0a1420;}
+.btn-edit{background:transparent; color:var(--text); border:1px solid var(--line);}
+.toast{position:fixed; bottom:110px; left:50%; transform:translateX(-50%) translateY(20px); background:#eef3f7; color:#0a1420;
+  padding:10px 18px; border-radius:20px; font-size:13px; font-weight:600; opacity:0; transition:opacity .2s, transform .2s; z-index:20;}
+.toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+.gauge-wrap{display:flex; flex-direction:column; align-items:center; margin:10px 0 22px;}
+.gauge-num{font-size:56px; font-weight:700; margin-top:6px;}
+.gauge-lbl{font-size:12px; letter-spacing:.12em; color:var(--sub); margin-top:2px;}
+.headline{font-size:26px; font-weight:700; text-align:center; margin:14px 0 8px; line-height:1.25;}
+.desc{font-size:14px; color:var(--sub); text-align:center; line-height:1.5; padding:0 8px;}
+.tabpanel{min-height:40px;}
+.bottomnav{position:fixed; bottom:0; left:0; right:0; display:flex; justify-content:center;
+  padding-bottom:calc(14px + env(safe-area-inset-bottom,0px));}
+.navbar{width:100%; max-width:420px; margin:0 18px; background:var(--card); border-radius:22px;
+  display:flex; align-items:center; justify-content:space-around; padding:10px 8px; border:1px solid var(--line);}
+.navitem{display:flex; flex-direction:column; align-items:center; gap:3px; color:var(--sub); background:none; border:none;
+  cursor:pointer; font-size:11px; padding:4px 10px; border-radius:12px; transition:color .15s;}
+.navitem.active{color:var(--text);}
+.navitem .ic{font-size:18px;}
+.addbtn{width:40px; height:40px; border-radius:50%; background:var(--text); color:#0a1420; font-size:20px; font-weight:700;
+  border:none; display:flex; align-items:center; justify-content:center; cursor:pointer;}
+@media (prefers-color-scheme:light){ :root{ --bg1:#0a1420; --bg2:#132434; } }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="topbar">
+    <button class="icon-btn" onclick="toast('Menu')">☰</button>
+    <div class="logo">◎ LORA</div>
+    <div style="display:flex; gap:4px;">
+      <button class="icon-btn" onclick="toast('Compartilhar')">⤴</button>
+      <button class="icon-btn" onclick="toast('Configurações')">⚙</button>
+    </div>
+  </div>
+
+  <div class="stats" id="stats"></div>
+
+  <button class="pill" onclick="toast('Detalhes da atividade')">Atividade detectada <span style="opacity:.6">ⓘ</span></button>
+
+  <div class="notif" id="notif">
+    <div class="notif-head">
+      <div class="notif-title"><span class="dot"></span> Talvez: Caminhando</div>
+      <button class="close-x" onclick="dismissNotif(false)">✕</button>
+    </div>
+    <div class="notif-meta">
+      <span>🕐 10:02</span><span>⏱ 19m</span><span>🔥 62 Cal</span><span>♥ 104 bpm</span>
+    </div>
+    <div class="notif-actions">
+      <button class="btn btn-confirm" onclick="dismissNotif(true)">✓ Confirmar</button>
+      <button class="btn btn-edit" onclick="editNotif()">✎ Editar</button>
+    </div>
+  </div>
+
+  <div class="gauge-wrap">
+    <svg width="220" height="130" viewBox="0 0 220 130">
+      <path d="M15,115 A95,95 0 0,1 205,115" fill="none" stroke="var(--line)" stroke-width="10" stroke-linecap="round"/>
+      <path id="arc" d="M15,115 A95,95 0 0,1 205,115" fill="none" stroke="var(--accent)" stroke-width="10" stroke-linecap="round"
+        stroke-dasharray="298" stroke-dashoffset="60"/>
+      <circle id="knob" cx="205" cy="115" r="7" fill="var(--accent)"/>
+    </svg>
+    <div class="gauge-num" id="gaugeNum">85</div>
+    <div class="gauge-lbl" id="gaugeLbl">READINESS</div>
+  </div>
+
+  <div class="tabpanel">
+    <div class="headline" id="headline">Equilíbrio ideal de VFC</div>
+    <div class="desc" id="desc">Seu equilíbrio de variabilidade da frequência cardíaca está ótimo! Isso sugere que seu corpo está bem recuperado.</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="bottomnav">
+  <div class="navbar" id="navbar"></div>
+</div>
+
+<script>
+const stats = [
+  {key:'readiness', ic:'👑', val:85, lbl:'Readiness',
+    headline:'Equilíbrio ideal de VFC',
+    desc:'Seu equilíbrio de variabilidade da frequência cardíaca está ótimo! Isso sugere que seu corpo está bem recuperado.'},
+  {key:'sleep', ic:'🌙', val:79, lbl:'Sleep',
+    headline:'Boa recuperação do sono',
+    desc:'Você teve sono suficiente e sua eficiência do sono foi sólida. Continue com sua rotina noturna.'},
+  {key:'activity', ic:'🔥', val:86, lbl:'Activity',
+    headline:'Você está ativo hoje',
+    desc:'Seu nível de atividade está acima da sua meta diária. Ótimo equilíbrio entre esforço e descanso.'},
+  {key:'heart', ic:'♥', val:83, lbl:'Heart rate',
+    headline:'Frequência cardíaca estável',
+    desc:'Sua frequência cardíaca de repouso está dentro da faixa esperada para você nos últimos dias.'},
+];
+let active = 0;
+
+function renderStats(){
+  const el = document.getElementById('stats');
+  el.innerHTML = stats.map((s,i)=>`
+    <div class="stat ${i===active?'active':''}" onclick="selectStat(${i})">
+      <div class="ic">${s.ic}</div>
+      <div class="val">${s.val}</div>
+      <div class="lbl">${s.lbl}</div>
+    </div>`).join('');
+}
+
+function selectStat(i){
+  active = i;
+  renderStats();
+  const s = stats[i];
+  document.getElementById('gaugeNum').textContent = s.val;
+  document.getElementById('gaugeLbl').textContent = s.lbl.toUpperCase();
+  document.getElementById('headline').textContent = s.headline;
+  document.getElementById('desc').textContent = s.desc;
+  const offset = 298 - (s.val/100)*298;
+  document.getElementById('arc').style.strokeDashoffset = offset;
+}
+
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(window._tt);
+  window._tt = setTimeout(()=>t.classList.remove('show'), 1600);
+}
+
+function dismissNotif(confirmed){
+  document.getElementById('notif').classList.add('hide');
+  toast(confirmed ? 'Atividade confirmada' : 'Descartado');
+}
+
+function editNotif(){
+  toast('Abrindo edição da atividade…');
+}
+
+const navs = [
+  {key:'today', ic:'☀', lbl:'Today'},
+  {key:'vitals', ic:'♥', lbl:'Vitals'},
+  {key:'health', ic:'📋', lbl:'My Health'},
+];
+let activeNav = 0;
+
+function renderNav(){
+  const el = document.getElementById('navbar');
+  el.innerHTML = navs.map((n,i)=>`
+    <button class="navitem ${i===activeNav?'active':''}" onclick="selectNav(${i})">
+      <span class="ic">${n.ic}</span>${n.lbl}
+    </button>`).join('') + `<button class="addbtn" onclick="toast('Adicionar')">+</button>`;
+}
+
+function selectNav(i){
+  activeNav = i;
+  renderNav();
+  toast(navs[i].lbl);
+}
+
+renderStats();
+renderNav();
+selectStat(0);
+</script>
+</body>
+</html>
