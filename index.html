@@ -20,14 +20,12 @@ body{
 }
 /* ===================================================================
    IMAGEM DE FUNDO (ceu.jpg)
-   Cole aqui a imagem convertida em base64 (data URI), assim:
-   --bg-image: url("data:image/jpeg;base64,/9j/4AAQSkZJRg....");
-   E mude --bg-overlay para .7 (deixa a foto visível mas o texto legível).
-   Se deixar "none", o fundo gradiente escuro (padrão) continua sendo usado.
+   O arquivo ceu.jpg precisa estar na mesma pasta que este index.html
+   (é exatamente o caso no seu repositório do GitHub).
    =================================================================== */
 :root{
-  --bg-image: none;
-  --bg-overlay: 0;
+  --bg-image: url("ceu.jpg");
+  --bg-overlay: .7;
 }
 .phone{
   width:100%; max-width:420px; min-height:100vh; padding:18px 18px 90px; position:relative;
